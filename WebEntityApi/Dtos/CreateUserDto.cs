@@ -1,13 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebEntityApi.Models;
+namespace WebEntityApi.Dtos;
 
-public class User
+public class CreateUserDto
 {
-    [Key]
-    [Required]
-    public int Id { get; set; }
-
     [Required]
     [MinLength(3)]
     public string Name { get; set; }
@@ -19,7 +15,4 @@ public class User
     [Required]
     [MinLength(6)]
     public string PassWord { get; set; }
-
-    [Required]
-    public DateTime CreationTime { get; set; } = DateTime.UtcNow;
 }

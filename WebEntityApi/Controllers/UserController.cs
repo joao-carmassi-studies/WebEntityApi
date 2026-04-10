@@ -1,21 +1,18 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebEntityApi.Dtos;
 using WebEntityApi.Models;
 using WebEntityApi.Repository;
 
-namespace WebEntityApi.Controllers;
+namespace WebEntityApi.Dtos;
 
 [ApiController]
 [Route("[Controller]")]
 public class UserController : ControllerBase
 {
     private Dal<User> Users;
-    private IMapper mapper;
 
-    public UserController(Dal<User> users, IMapper mapper)
+    public UserController(Dal<User> users)
     {
-        this.mapper = mapper;
         Users = users;
     }
 
@@ -23,15 +20,16 @@ public class UserController : ControllerBase
     public IEnumerable<UserDto> Get()
     {
         var users = Users.List();
-        return mapper.Map<IEnumerable<UserDto>>(users);
+        return users.Select(u => u.ToDto());
     }
 
     [HttpPost]
-    public IActionResult Post([FromBody] User user)
+    public IActionResult Post([FromBody] CreateUserDto createUserDto)
     {
+        var user = createUserDto.ToEntity();
         Users.Add(user);
-        var userDto = mapper.Map<UserDto>(user);
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, userDto);
+        var userDto = user.ToDto();
+        return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
     }
 
     [HttpGet("{id}")]
@@ -40,7 +38,7 @@ public class UserController : ControllerBase
         var user = Users.Find(user => user.Id == id);
         if (user == null) return NotFound();
 
-        var userDto = mapper.Map<UserDto>(user);
+        var userDto = user.ToDto();
         return Ok(userDto);
     }
 
@@ -55,12 +53,12 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Put(int id, [FromBody] UserDto userDto)
+    public IActionResult Put(int id, [FromBody] UpdateUserDto updateUserDto)
     {
         var user = Users.Find(user => user.Id == id);
         if (user == null) return NotFound();
 
-        mapper.Map(userDto, user);
+        user.UpdateFromTdo(updateUserDto);
         Users.Update(user);
         return NoContent();
     }

@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddDbContext<WebEntityApiDbContext>();
 builder.Services.AddScoped<Dal<User>>();
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<Dal<Tenant>>();
 
 builder.Services.AddOpenApi();
 
