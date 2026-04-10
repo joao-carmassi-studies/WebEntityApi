@@ -52,6 +52,7 @@ public class TenantController : ControllerBase
         if (tenant == null) return NotFound();
 
         tenant.UpdateFromDto(updateTenantDto);
+        Tenants.Update(tenant);
         return NoContent();
     }
 
