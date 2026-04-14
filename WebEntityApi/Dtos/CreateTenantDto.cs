@@ -2,12 +2,12 @@
 
 namespace WebEntityApi.Dtos;
 
-public class CreateTenantDto
+public record CreateTenantDto
 {
     [Required]
     [MinLength(3)]
-    public string Name { get; set; }
+    public string Name { get; init; }
 
     [Required]
-    public int OwnerId { get; set; }
+    public int OwnerId { get; init; }
 }

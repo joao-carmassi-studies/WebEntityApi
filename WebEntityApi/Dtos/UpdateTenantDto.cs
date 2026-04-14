@@ -2,8 +2,8 @@
 
 namespace WebEntityApi.Dtos;
 
-public class UpdateTenantDto
+public record UpdateTenantDto
 {
     [MinLength(3)]
-    public string? Name { get; set; }
+    public string? Name { get; init; }
 }

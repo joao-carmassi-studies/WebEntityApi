@@ -2,10 +2,10 @@
 
 namespace WebEntityApi.Dtos;
 
-public class TenantDto
+public record TenantDto
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public DateTime CreationTime { get; set; }
-    public int OwnerId { get; set; }
+    public int Id { get; init; }
+    public string Name { get; init; }
+    public DateTime CreationTime { get; init; }
+    public int OwnerId { get; init; }
 }

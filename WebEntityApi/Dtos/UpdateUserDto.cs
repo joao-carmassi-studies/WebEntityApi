@@ -2,14 +2,14 @@
 
 namespace WebEntityApi.Dtos;
 
-public class UpdateUserDto
+public record UpdateUserDto
 {
     [MinLength(3)]
-    public string? Name { get; set; }
+    public string? Name { get; init; }
 
     [EmailAddress]
-    public string? Email { get; set; }
+    public string? Email { get; init; }
 
     [MinLength(6)]
-    public string? PassWord { get; set; }
+    public string? PassWord { get; init; }
 }
