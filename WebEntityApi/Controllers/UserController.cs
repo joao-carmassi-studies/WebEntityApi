@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebEntityApi.Dtos;
 using WebEntityApi.Models;
 using WebEntityApi.Repository;
 
@@ -17,25 +16,25 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public IEnumerable<UserDto> Get()
+    async public Task<IEnumerable<UserDto>> Get()
     {
-        var users = Users.List();
+        var users = await Users.ListAsync();
         return users.Select(u => u.ToDto());
     }
 
     [HttpPost]
-    public IActionResult Post([FromBody] CreateUserDto createUserDto)
+    async public Task<IActionResult> Post([FromBody] CreateUserDto createUserDto)
     {
         var user = createUserDto.ToEntity();
-        Users.Add(user);
+        await Users.AddAsync(user);
         var userDto = user.ToDto();
         return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetUser(int id)
+    async public Task<IActionResult> GetUser(int id)
     {
-        var user = Users.Find(user => user.Id == id);
+        var user = await Users.FindAsync(user => user.Id == id);
         if (user == null) return NotFound();
 
         var userDto = user.ToDto();
@@ -43,23 +42,23 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    async public Task<IActionResult> Delete(int id)
     {
-        var user = Users.Find(user => user.Id == id);
+        var user = await Users.FindAsync(user => user.Id == id);
         if (user == null) return NotFound();
 
-        Users.Remove(user);
+        await Users.Remove(user);
         return NoContent();
     }
 
     [HttpPut("{id}")]
-    public IActionResult Put(int id, [FromBody] UpdateUserDto updateUserDto)
+    async public Task<IActionResult> Put(int id, [FromBody] UpdateUserDto updateUserDto)
     {
-        var user = Users.Find(user => user.Id == id);
+        var user = await Users.FindAsync(user => user.Id == id);
         if (user == null) return NotFound();
 
         user.UpdateFromTdo(updateUserDto);
-        Users.Update(user);
+        await Users.Update(user);
         return NoContent();
     }
 }

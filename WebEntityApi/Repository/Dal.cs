@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace WebEntityApi.Repository;
 
@@ -11,31 +12,31 @@ public class Dal<T> where T : class
         this.context = context;
     }
 
-    public IEnumerable<T> List()
+    async public Task<IEnumerable<T>> ListAsync()
     {
-        return context.Set<T>().ToList();
+        return await context.Set<T>().ToListAsync();
     }
 
-    public void Add(T obj)
+    async public Task AddAsync(T obj)
     {
-        context.Set<T>().Add(obj);
-        context.SaveChanges();
+        await context.Set<T>().AddAsync(obj);
+        await context.SaveChangesAsync();
     }
 
-    public T? Find(Func<T, bool> condition)
+    async public Task<T?> FindAsync(Expression<Func<T, bool>> condition)
     {
-        return context.Set<T>().FirstOrDefault(condition);
+        return await context.Set<T>().FirstOrDefaultAsync(condition);
     }
 
-    public void Remove(T obj)
+    async public Task Remove(T obj)
     {
         context.Set<T>().Remove(obj);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
-    public void Update(T obj)
+    async public Task Update(T obj)
     {
         context.Set<T>().Update(obj);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }
