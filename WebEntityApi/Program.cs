@@ -1,5 +1,6 @@
 using WebEntityApi.Models;
 using WebEntityApi.Repository;
+using WebEntityApi.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<WebEntityApiDbContext>();
 builder.Services.AddScoped<Dal<User>>();
 builder.Services.AddScoped<Dal<Tenant>>();
+builder.Services.AddScoped<UserService>();
 
 builder.Services.AddOpenApi();
 

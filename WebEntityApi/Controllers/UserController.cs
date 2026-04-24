@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebEntityApi.Models;
 using WebEntityApi.Repository;
+using WebEntityApi.Service;
 
 namespace WebEntityApi.Dtos;
 
@@ -8,57 +9,47 @@ namespace WebEntityApi.Dtos;
 [Route("[Controller]")]
 public class UserController : ControllerBase
 {
-    private Dal<User> Users;
+    private UserService UserService;
 
-    public UserController(Dal<User> users)
+    public UserController(UserService service)
     {
-        Users = users;
+        UserService = service;
     }
 
     [HttpGet]
     async public Task<IEnumerable<UserDto>> Get()
     {
-        var users = await Users.ListAsync();
-        return users.Select(u => u.ToDto());
+        return await UserService.ListAll();
     }
 
     [HttpPost]
     async public Task<IActionResult> Post([FromBody] CreateUserDto createUserDto)
     {
-        var user = createUserDto.ToEntity();
-        await Users.AddAsync(user);
-        var userDto = user.ToDto();
+        var userDto = UserService.Create(createUserDto);
         return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
     }
 
     [HttpGet("{id}")]
     async public Task<IActionResult> GetUser(int id)
     {
-        var user = await Users.FindAsync(user => user.Id == id);
-        if (user == null) return NotFound();
-
-        var userDto = user.ToDto();
+        var userDto = await UserService.Get(id);
+        if (userDto == null) return NotFound();
         return Ok(userDto);
     }
 
     [HttpDelete("{id}")]
     async public Task<IActionResult> Delete(int id)
     {
-        var user = await Users.FindAsync(user => user.Id == id);
-        if (user == null) return NotFound();
-
-        await Users.Remove(user);
+        var deleted = await UserService.Delete(id);
+        if (!deleted) return NotFound();
         return NoContent();
     }
 
     [HttpPut("{id}")]
     async public Task<IActionResult> Put(int id, [FromBody] UpdateUserDto updateUserDto)
     {
-        var user = await Users.FindAsync(user => user.Id == id);
-        if (user == null) return NotFound();
-
-        user.UpdateFromTdo(updateUserDto);
-        await Users.Update(user);
+        var updated = await UserService.Update(id, updateUserDto);
+        if (!updated) return NotFound();
         return NoContent();
     }
 }

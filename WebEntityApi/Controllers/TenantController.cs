@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebEntityApi.Dtos;
-using WebEntityApi.Models;
-using WebEntityApi.Repository;
+using WebEntityApi.Service;
 
 namespace WebEntityApi.Controllers;
 
@@ -9,60 +8,52 @@ namespace WebEntityApi.Controllers;
 [Route("[Controller]")]
 public class TenantController : ControllerBase
 {
-    public Dal<Tenant> Tenants { get; set; }
-    public Dal<User> Users { get; set; }
+    private TenantService TenantService;
 
-    public TenantController(Dal<Tenant> tenants, Dal<User> users)
+    public TenantController(TenantService service)
     {
-        Tenants = tenants;
-        Users = users;
+        TenantService = service;
     }
 
     [HttpGet]
     async public Task<IEnumerable<TenantDto>> Get()
     {
-        var tenants = await Tenants.ListAsync();
-        return tenants.Select(t => t.ToDto());
+        return await TenantService.ListAll();
     }
 
     [HttpGet("{id}")]
     async public Task<IActionResult> GetTenant(int id)
     {
-        var tenant = await Tenants.FindAsync(t => t.Id == id);
-        if (tenant == null) return NotFound();
+        var tenantDto = await TenantService.Get(id);
+        if (tenantDto == null) return NotFound();
 
-        return Ok(tenant.ToDto());
+        return Ok(tenantDto);
     }
 
     [HttpPost]
     async public Task<IActionResult> Post([FromBody] CreateTenantDto createTenantDto)
     {
-        var user = await Users.FindAsync(u => u.Id == createTenantDto.OwnerId);
-        if (user == null) return NotFound("User not found");
+        var tenantDto = await TenantService.Create(createTenantDto);
+        if (tenantDto == null) return NotFound("User not found");
 
-        var tenant = createTenantDto.ToEntity(user);
-        await Tenants.AddAsync(tenant);
-        return CreatedAtAction(nameof(GetTenant), new { id = tenant.Id }, tenant.ToDto());
+        return CreatedAtAction(nameof(GetTenant), new { id = tenantDto.Id }, tenantDto);
     }
 
     [HttpPut("{id}")]
     async public Task<IActionResult> Put([FromBody] UpdateTenantDto updateTenantDto, int id)
     {
-        var tenant = await Tenants.FindAsync(t => t.Id == id);
-        if (tenant == null) return NotFound();
+        var updated = await TenantService.Update(updateTenantDto, id);
+        if (!updated) return NotFound();
 
-        tenant.UpdateFromDto(updateTenantDto);
-        await Tenants.Update(tenant);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     async public Task<IActionResult> Delete(int id)
     {
-        var tenant = await Tenants.FindAsync(t => t.Id == id);
-        if (tenant == null) return NotFound();
+        var deleted = await TenantService.Delete(id);
+        if (!deleted) return NotFound();
 
-        await Tenants.Remove(tenant);
         return NoContent();
     }
 }
