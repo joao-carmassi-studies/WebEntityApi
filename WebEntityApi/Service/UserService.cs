@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebEntityApi.Dtos;
+﻿using WebEntityApi.Dtos;
+using WebEntityApi.Exceptions;
 using WebEntityApi.Models;
 using WebEntityApi.Repository;
 
@@ -24,32 +24,28 @@ public class UserService
     {
         var user = createUserDto.ToEntity();
         await Users.AddAsync(user);
-        var userDto = user.ToDto();
-        return userDto;
+        return user.ToDto();
     }
 
-    async public Task<UserDto?> Get(int id)
+    async public Task<UserDto> Get(int id)
     {
-        var user = await Users.FindAsync(user => user.Id == id);
-        return user?.ToDto();
+        var user = await Users.FindAsync(u => u.Id == id)
+            ?? throw new NotFoundException($"User with id {id} not found.");
+        return user.ToDto();
     }
 
-    async public Task<bool> Delete(int id)
+    async public Task Delete(int id)
     {
-        var user = await Users.FindAsync(user => user.Id == id);
-        if (user == null) return false;
-
+        var user = await Users.FindAsync(u => u.Id == id)
+            ?? throw new NotFoundException($"User with id {id} not found.");
         await Users.Remove(user);
-        return true;
     }
 
-    async public Task<bool> Update(int id, [FromBody] UpdateUserDto updateUserDto)
+    async public Task Update(int id, UpdateUserDto updateUserDto)
     {
-        var user = await Users.FindAsync(user => user.Id == id);
-        if (user == null) return false;
-
+        var user = await Users.FindAsync(u => u.Id == id)
+            ?? throw new NotFoundException($"User with id {id} not found.");
         user.UpdateFromTdo(updateUserDto);
         await Users.Update(user);
-        return true;
     }
 }

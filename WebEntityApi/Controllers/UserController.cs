@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebEntityApi.Models;
-using WebEntityApi.Repository;
+using WebEntityApi.Dtos;
 using WebEntityApi.Service;
 
-namespace WebEntityApi.Dtos;
+namespace WebEntityApi.Controllers;
 
 [ApiController]
 [Route("[Controller]")]
@@ -25,7 +24,7 @@ public class UserController : ControllerBase
     [HttpPost]
     async public Task<IActionResult> Post([FromBody] CreateUserDto createUserDto)
     {
-        var userDto = UserService.Create(createUserDto);
+        var userDto = await UserService.Create(createUserDto);
         return CreatedAtAction(nameof(GetUser), new { id = userDto.Id }, userDto);
     }
 
@@ -33,23 +32,20 @@ public class UserController : ControllerBase
     async public Task<IActionResult> GetUser(int id)
     {
         var userDto = await UserService.Get(id);
-        if (userDto == null) return NotFound();
         return Ok(userDto);
     }
 
     [HttpDelete("{id}")]
     async public Task<IActionResult> Delete(int id)
     {
-        var deleted = await UserService.Delete(id);
-        if (!deleted) return NotFound();
+        await UserService.Delete(id);
         return NoContent();
     }
 
     [HttpPut("{id}")]
     async public Task<IActionResult> Put(int id, [FromBody] UpdateUserDto updateUserDto)
     {
-        var updated = await UserService.Update(id, updateUserDto);
-        if (!updated) return NotFound();
+        await UserService.Update(id, updateUserDto);
         return NoContent();
     }
 }
